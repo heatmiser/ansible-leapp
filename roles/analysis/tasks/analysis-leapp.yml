@@ -1,14 +1,32 @@
 ---
 - name: "Register to leapp activation key"
-  community.general.redhat_subscription:
-    state: present
-    activationkey: "{{ satellite_activation_key_leapp }}"
-    org_id: "{{ satellite_organization }}"
-    force_register: true
+  ansible.builtin.include_tasks: register-activation-key.yml
   when: leapp_upgrade_type == 'disconnected'
 
-- name: Ensure leapp metadata is available for disconnected Leapp upgrades
-  when: leapp_upgrade_type == 'disconnected'
+- name: Register output of 'yum repolist'
+  ansible.builtin.shell: |
+    set -o pipefail
+    yum repolist
+  args:
+    executable: /bin/bash
+  register: yum_repolist
+  changed_when: yum_repolist.rc != 0
+
+# Determine if node is an EC2 Marketplace instance utilzing RHUI
+- name: Set fact for RHUI RHEL extras repo name when EC2 and utilizing RHUI
+  ansible.builtin.set_fact:
+    analysis_repos_el7: "rhel-7-server-rhui-extras-rpms"
+  when:
+    - ansible_system_vendor == "Amazon EC2" or ansible_system_vendor == "Xen"
+    - ansible_product_uuid|regex_search('^ec2') or ansible_product_uuid|regex_search('^EC2')
+    - "'rhui' in yum_repolist.stdout"
+    - ansible_distribution_major_version|int == 7
+
+- name: Ensure Leapp metadata is available for disconnected or RHUI Marketplace Leapp upgrades
+  when: |
+    leapp_upgrade_type == 'disconnected' or
+    (ansible_system_vendor == "Amazon EC2" and (ansible_product_uuid|regex_search('^ec2') or ansible_product_uuid|regex_search('^EC2')) and "'rhui' in yum_repolist.stdout") or
+    (ansible_system_vendor == "Xen" and (ansible_product_uuid|regex_search('^ec2') or ansible_product_uuid|regex_search('^EC2')) and "'rhui' in yum_repolist.stdout")
   block:
     - name: /etc/leapp/files directory exists
       ansible.builtin.file:
@@ -32,6 +50,15 @@
     enablerepo: "{{ analysis_repos_el7 }}"
     state: latest
   when: ansible_distribution_major_version|int == 7
+
+- name: Install leapp-rhui-aws package for preupgrade analysis for RHUI Marketplace Leapp upgrades
+  ansible.builtin.yum:
+    name: leapp-rhui-aws
+    state: latest
+  when:
+    - ansible_system_vendor == "Amazon EC2" or ansible_system_vendor == "Xen"
+    - ansible_product_uuid|regex_search('^ec2') or ansible_product_uuid|regex_search('^EC2')
+    - "'rhui' in yum_repolist.stdout"
 
 - name: Install packages for preupgrade analysis on RHEL 8
   ansible.builtin.package:
