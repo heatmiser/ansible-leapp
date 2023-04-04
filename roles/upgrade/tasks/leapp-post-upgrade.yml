@@ -81,11 +81,7 @@
 # TODO: Unset rhui release.
 
 - name: "Register to post leapp activation key"
-  community.general.redhat_subscription:
-    state: present
-    activationkey: "{{ satellite_activation_key_post_leapp }}"
-    org_id: "{{ satellite_organization }}"
-    force_register: true
+  ansible.builtin.include_tasks: register-activation-key.yml
   when: leapp_upgrade_type == 'disconnected'
 
 - name: Update all packages
