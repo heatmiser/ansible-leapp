@@ -23,6 +23,11 @@ analysis_packages_el8:
 analysis_repos_el7:
   - rhel-7-server-extras-rpms
 
+# If defined, leapp_answerfile will be used as the contents of /var/log/leapp/answerfile.
+# leapp_answerfile: |
+#   [remove_pam_pkcs11_module_check]
+#   confirm = True
+
 # leapp_upgrade_type: connected
 leapp_upgrade_type: disconnected
 
@@ -37,9 +42,13 @@ leapp_metadata_url: https://satellite.example.com/pub/leapp-data-21.tar.gz
 satellite_organization: Example
 satellite_activation_key_leapp: rhel{{ ansible_distribution_major_version }}_leapp
 
-# leapp_repos_enabled: []
-leapp_repos_enabled:
-  - satellite-client-6-for-rhel-{{ ansible_distribution_major_version | int + 1 }}-x86_64-rpms
+leapp_repos_enabled: []
+# leapp_repos_enabled:
+#   - satellite-client-6-for-rhel-{{ ansible_distribution_major_version | int + 1 }}-x86_64-rpms
 
 result_filename: '/var/log/leapp/leapp-report.txt'
+
+kernel_modules_to_unload: []
+# kernel_modules_to_unload:
+#  - btrfs
 ...

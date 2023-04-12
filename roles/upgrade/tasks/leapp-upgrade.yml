@@ -29,13 +29,14 @@
 - name: Start Leapp OS upgrade
   ansible.builtin.shell: >
     set -o pipefail;
-    modprobe -r btrfs;
     leapp upgrade
     {{ leapp_upgrade_opts }}
     {{ leapp_enable_repos_args }}
     2>&1 | tee -a {{ log_file }}
   args:
     executable: /bin/bash
+  async: 43200
+  poll: 60
 
 - name: Reboot to continue Leapp OS upgrade
   ansible.builtin.reboot:

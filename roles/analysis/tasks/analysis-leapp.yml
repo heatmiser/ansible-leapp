@@ -44,6 +44,14 @@
         owner: root
         group: root
 
+- name: Ensure leapp log directory exists
+  ansible.builtin.file:
+    path: /var/log/leapp
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
 - name: Install packages for preupgrade analysis on RHEL 7
   ansible.builtin.package:
     name: "{{ analysis_packages_el7 }}"
@@ -66,6 +74,21 @@
     state: latest
   when: ansible_distribution_major_version|int == 8
 
+- name: Populate leapp_answers file
+  ansible.builtin.copy:
+    content: "{{ leapp_answerfile }}"
+    dest: /var/log/leapp/answerfile
+    owner: root
+    group: root
+    mode: '0644'
+  when: leapp_answerfile is defined
+
+- name: Kernel modules defined by kernel_modules_to_unload are unloaded
+  community.general.modprobe:
+    name: "{{ item }}"
+    state: absent
+  loop: "{{ kernel_modules_to_unload }}"
+
 - name: Leapp preupgrade report
   ansible.builtin.shell: >
     set -o pipefail;
@@ -76,6 +99,8 @@
   register: leapp
   args:
     executable: /bin/bash
+  async: 43200
+  poll: 60
   failed_when: "'report has been generated' not in leapp.stdout"
 
 - name: Result file status
