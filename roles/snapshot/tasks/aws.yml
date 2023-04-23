@@ -23,10 +23,12 @@
   block:
     - name: Stop instance
       ansible.builtin.include_tasks: aws/stop_instances.yml
+      when: ec2_stop_instance_for_snapshot | default(true)
     - name: Create snapshot
       ansible.builtin.include_tasks: aws/snapshot_create.yml
     - name: Start instance
       ansible.builtin.include_tasks: aws/start_instances.yml
+      when: ec2_stop_instance_for_snapshot | default(true)
 
 - name: Delete instance snapshot
   ansible.builtin.include_tasks: aws/snapshot_delete.yml
