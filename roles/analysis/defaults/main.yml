@@ -5,6 +5,9 @@ analysis_packages_el7:
   # - leapp-upgrade-el7toel8
   # Try this instead.
   - leapp-upgrade
+  - cockpit
+  - cockpit-system
+  - cockpit-leapp
   # TODO: this should be part of LVM snapshot process.
   # - lvm2-python-boom
 
@@ -13,6 +16,9 @@ analysis_packages_el8:
   # - leapp-upgrade-el8toel9
   # Try this instead.
   - leapp-upgrade
+  - cockpit
+  - cockpit-system
+  - cockpit-leapp
   # TODO: This should be part of inhibitor remediation.
   # - vdo
   # TODO: This should be part of LVM snapshot process.
