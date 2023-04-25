@@ -16,5 +16,5 @@
 - name: Display snapshots_details
   ansible.builtin.debug:
     var: snapshots_details
-  when: ansible_check_mode | default(true)
+  when: ansible_check_mode | default(false)
 ...
