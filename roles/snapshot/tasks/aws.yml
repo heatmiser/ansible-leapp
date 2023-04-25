@@ -48,4 +48,8 @@
       ansible.builtin.include_tasks: aws/new_volume_and_attach.yml
     - name: Start instance
       ansible.builtin.include_tasks: aws/start_instances.yml
+
+- name: Display instance snapshot details
+  ansible.builtin.include_tasks: aws/get_snapshot_details.yml
+  when: ec2_instance_action == "get_snapshot_details"
 ...
