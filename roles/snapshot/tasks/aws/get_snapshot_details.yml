@@ -12,4 +12,9 @@
   delegate_to: localhost
   connection: local
   register: snapshots_details
+
+- name: Display snapshots_details
+  ansible.builtin.debug:
+    var: snapshots_details
+  when: ansible_check_mode | default(true)
 ...
