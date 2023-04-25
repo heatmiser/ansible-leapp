@@ -6,9 +6,9 @@
     device_name: "{{ item.4 }}"
     region: "{{ ec2_region }}"
   with_together:
-    - "{{ snapshots_details.snapshots | map(attribute='tags.Name') | list }}"
-    - "{{ snapshots_details.snapshots | map(attribute='tags.Instance_name') | list }}"
-    - "{{ snapshots_details.snapshots | map(attribute='tags.Instance_id') | list }}"
-    - "{{ snapshots_details.snapshots | map(attribute='snapshot_id') | list }}"
-    - "{{ snapshots_details.snapshots | map(attribute='tags.root_device_name') | list }}"
+    - "{{ snapshot_details.snapshots | map(attribute='tags.Name') | list }}"
+    - "{{ snapshot_details.snapshots | map(attribute='tags.Instance_name') | list }}"
+    - "{{ snapshot_details.snapshots | map(attribute='tags.Instance_id') | list }}"
+    - "{{ snapshot_details.snapshots | map(attribute='snapshot_id') | list }}"
+    - "{{ snapshot_details.snapshots | map(attribute='tags.root_device_name') | list }}"
 ...

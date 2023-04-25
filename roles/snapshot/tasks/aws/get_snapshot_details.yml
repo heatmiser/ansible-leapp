@@ -11,10 +11,10 @@
     region: "{{ ec2_region }}"
   delegate_to: localhost
   connection: local
-  register: snapshots_details
+  register: snapshot_details
 
-- name: Display snapshots_details
+- name: Display snapshot_details
   ansible.builtin.debug:
-    var: snapshots_details
+    var: snapshot_details
     verbosity: 3
 ...

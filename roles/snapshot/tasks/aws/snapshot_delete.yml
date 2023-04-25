@@ -6,5 +6,5 @@
     state: absent
     wait: true
   with_together:
-    - "{{ snapshots_details.snapshots | map(attribute='snapshot_id') | list }}"
+    - "{{ snapshot_details.snapshots | map(attribute='snapshot_id') | list }}"
 ...
