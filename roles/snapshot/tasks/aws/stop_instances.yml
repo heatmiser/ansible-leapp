@@ -1,7 +1,7 @@
 ---
 - name: Stop instances
   amazon.aws.ec2_instance:
-    instance_ids: "{{ instances_details.instances | map(attribute='instance_id') | list | unique }}"
+    instance_ids: "{{ instance_details.instances | map(attribute='instance_id') | list | unique }}"
     # vpc_subnet_id: "{{ item.1 }}"
     state: stopped
     filters: "{{ ec2_remote_tags.stdout }}"
@@ -18,5 +18,5 @@
     timeout: 60
   delegate_to: localhost
   connection: local
-  loop: "{{ instances_details.instances | map(attribute='private_ip_address') | list | unique }}"
+  loop: "{{ instance_details.instances | map(attribute='private_ip_address') | list | unique }}"
 ...

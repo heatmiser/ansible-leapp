@@ -11,5 +11,5 @@
     region: "{{ ec2_region }}"
   delegate_to: localhost
   connection: local
-  register: instances_details
+  register: instance_details
 ...
