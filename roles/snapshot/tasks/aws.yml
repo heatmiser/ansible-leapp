@@ -1,4 +1,9 @@
 ---
+- name: Display ec2_instance_action
+  ansible.builtin.debug:
+    var: ec2_instance_action
+    verbosity: 3
+
 # Gather info
 - name: Get instance details
   ansible.builtin.include_tasks: aws/get_instance_details.yml
