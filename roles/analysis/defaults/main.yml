@@ -1,30 +1,31 @@
 ---
 # defaults file for analysis
+analysis_packages_el6:
+  - preupgrade-assistant
+  - preupgrade-assistant-el6toel7
+  - redhat-upgrade-tool
+  - openscap
+  - openscap-engine-sce
+
 analysis_packages_el7:
   # TODO: Seems to cause package dependency problems with post upgrade cleanup.
   # - leapp-upgrade-el7toel8
   # Try this instead.
   - leapp-upgrade
-  - cockpit
-  - cockpit-system
-  - cockpit-leapp
-  # TODO: this should be part of LVM snapshot process.
-  # - lvm2-python-boom
 
 analysis_packages_el8:
   # TODO: Seems to cause package dependency problems with post upgrade cleanup.
   # - leapp-upgrade-el8toel9
   # Try this instead.
   - leapp-upgrade
-  - cockpit
-  - cockpit-system
-  - cockpit-leapp
   # TODO: This should be part of inhibitor remediation.
   # - vdo
-  # TODO: This should be part of LVM snapshot process.
-  # - boom-boot
   # TODO: only w/ rhui for aws
   # - leapp-rhui-aws
+
+analysis_repos_el6:
+  - rhel-6-server-extras-rpms
+  - rhel-6-server-optional-rpms
 
 analysis_repos_el7:
   - rhel-7-server-extras-rpms
@@ -46,11 +47,11 @@ leapp_preupg_opts: "{{ '--no-rhsm' if leapp_upgrade_type == 'connected' else '' 
 leapp_metadata_url: https://satellite.example.com/pub/leapp-data-21.tar.gz
 
 satellite_organization: Example
+satellite_activation_key_pre_leapp: rhel{{ ansible_distribution_major_version }}
 satellite_activation_key_leapp: rhel{{ ansible_distribution_major_version }}_leapp
 
 leapp_repos_enabled: []
 # leapp_repos_enabled:
 #   - satellite-client-6-for-rhel-{{ ansible_distribution_major_version | int + 1 }}-x86_64-rpms
 
-result_filename: '/var/log/leapp/leapp-report.txt'
 ...

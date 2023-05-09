@@ -1,6 +1,6 @@
 ---
 # /etc/dnf/dnf.conf is an ini file and could be parsed to check if exclude has value and run this conditionally.
-- name: Remove all packages from the dnf exclude list
+- name: Clean dnf exclude list
   ansible.builtin.shell: dnf config-manager --save --setopt exclude=''
 
 # leapp 7 to 8 documentation cleans up old kernels
@@ -34,32 +34,8 @@
         state: absent
       loop: "{{ old_kernels.files }}"
 
-# TODO: Use ansible facts.
-- name: Search for remaining previous version rhel packages
-  ansible.builtin.shell:
-    cmd: >-
-      set -o pipefail;
-      rpm -qa |
-      grep -ve '\.el{{ ansible_distribution_major_version }}' |
-      grep -vE '^(gpg-pubkey|libmodulemd|katello-ca-consumer)' |
-      sort
-  changed_when: false
-  register: previous_version_packages
-
-- name: Debug previous_version_packages
-  ansible.builtin.debug:
-    var: previous_version_packages
-
-- name: Test remove previous_version_packages
-  ansible.builtin.package:
-    name: "{{ previous_version_packages.stdout_lines }}"
-    state: absent
-  check_mode: true
-  register: result
-
-- name: Report previous_version_packages that would be removed
-  ansible.builtin.debug:
-    var: result
+- name: Include check-for-old-packages.yml
+  ansible.builtin.include_tasks: check-for-old-packages.yml
 
 - name: Remove leapp related packages
   ansible.builtin.package:
@@ -81,17 +57,15 @@
 # TODO: Unset rhui release.
 
 - name: "Register to post leapp activation key"
-  ansible.builtin.include_tasks: register-activation-key.yml
+  community.general.redhat_subscription:
+    state: present
+    activationkey: "{{ satellite_activation_key_post_leapp }}"
+    org_id: "{{ satellite_organization }}"
+    force_register: true
   when: leapp_upgrade_type == 'disconnected'
 
-- name: Update all packages
-  ansible.builtin.package:
-    name: '*'
-    state: latest
-
-- name: Reboot to finalize packages updates
-  ansible.builtin.reboot:
-    reboot_timeout: 7200
+- name: Include update-and-reboot.yml
+  ansible.builtin.include_tasks: update-and-reboot.yml
 
 # TODO: Validate RHEL OS versions again?
 

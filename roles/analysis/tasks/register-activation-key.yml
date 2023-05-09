@@ -1,8 +1,0 @@
----
-- name: "Register to leapp activation key"
-  community.general.redhat_subscription:
-    state: present
-    activationkey: "{{ satellite_activation_key_leapp }}"
-    org_id: "{{ satellite_organization }}"
-    force_register: true
-...

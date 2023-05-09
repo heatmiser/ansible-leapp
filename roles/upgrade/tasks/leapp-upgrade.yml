@@ -8,10 +8,6 @@
     that: not upgrade_inhibited
     msg: Inhibitors found, please investigate and rerun analysis.
 
-- name: Create snapshot
-  ansible.builtin.debug:
-    msg: 'FIXME: snapshot needs to happen here!'
-
 - name: Register to leapp activation key
   community.general.redhat_subscription:
     state: present
@@ -20,31 +16,8 @@
     force_register: true
   when: leapp_upgrade_type == 'disconnected'
 
-- name: Ensure all updates are applied
-  ansible.builtin.package:
-    name: '*'
-    state: latest
-  register: updates_available
-
-- name: Reboot when updates applied
-  ansible.builtin.reboot:
-    post_reboot_delay: 60
-    reboot_timeout: 43200
-  when: updates_available.changed # noqa: no-handler
-
-- name: Run preupgrade hooks
-  ansible.builtin.shell: |
-    set -o pipefail
-    for exe in $(find /root/preupgrade/preupgrade-scripts -type f -executable); do
-      echo "Running $exe..." | tee -a {{ log_file }}
-      ( cd ${exe%/*} && ./${exe##*/} ) 2>&1 | tee -a {{ log_file }}
-      if [[ $? -ne 0 ]]; then
-        echo "Fatal error while running preupgrade hook $exe" | tee -a {{ log_file }}
-        exit 1
-      fi
-    done
-  args:
-    executable: /bin/bash
+- name: Include update-and-reboot.yml
+  ansible.builtin.include_tasks: update-and-reboot.yml
 
 - name: Start Leapp OS upgrade
   ansible.builtin.shell: >
@@ -64,6 +37,11 @@
     post_reboot_delay: 60
     reboot_timeout: 43200
 
+# Ansible discovers /usr/bin/python on RHEL 7, then on RHEL 8 it is no longer available.
+- name: Set python interpreter to /usr/bin/python3 since /usr/bin/python is no longer available
+  ansible.builtin.set_fact:
+    ansible_python_interpreter: /usr/bin/python3
+
 - name: Wait for leapp_resume run once service to no longer exist
   ansible.builtin.service:
     name: leapp_resume
@@ -75,17 +53,4 @@
   retries: 360
   delay: 10
 
-- name: Run postupgrade hooks
-  ansible.builtin.shell: |
-    set -o pipefail
-    for exe in $(find /root/preupgrade/postupgrade.d -type f -executable); do
-      echo "Running $exe..." | tee -a {{ log_file }}
-      ( cd ${exe%/*} && ./${exe##*/} ) 2>&1 | tee -a {{ log_file }}
-      if [[ $? -ne 0 ]]; then
-        echo "Fatal error while running postupgrade hook $exe" | tee -a {{ log_file }}
-        exit 1
-      fi
-    done
-  args:
-    executable: /bin/bash
 ...
