@@ -64,6 +64,12 @@
     state: latest
   when: ansible_distribution_major_version|int == 7
 
+- name: Install packages for preupgrade analysis on RHEL 8
+  ansible.builtin.package:
+    name: "{{ analysis_packages_el8 }}"
+    state: latest
+  when: ansible_distribution_major_version|int == 8
+
 - name: Install leapp-rhui-aws package for preupgrade analysis for RHUI Marketplace Leapp upgrades
   ansible.builtin.yum:
     name: leapp-rhui-aws
@@ -72,12 +78,6 @@
     - ansible_system_vendor == "Amazon EC2" or ansible_system_vendor == "Xen"
     - ansible_product_uuid|regex_search('^ec2') or ansible_product_uuid|regex_search('^EC2')
     - "'rhui' in yum_repolist.stdout"
-
-- name: Install packages for preupgrade analysis on RHEL 8
-  ansible.builtin.package:
-    name: "{{ analysis_packages_el8 }}"
-    state: latest
-  when: ansible_distribution_major_version|int == 8
 
 - name: Populate leapp_answers file
   ansible.builtin.copy:
