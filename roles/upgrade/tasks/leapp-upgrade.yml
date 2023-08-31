@@ -31,8 +31,17 @@
     2>&1 | tee -a {{ log_file }}
   args:
     executable: /bin/bash
-  async: 43200
-  poll: 60
+  async: "{{ leapp_async_timeout }}"
+  poll: 0
+  register: leapp_async
+
+- name: Check if Leapp OS upgrade is complete
+  ansible.builtin.async_status:
+    jid: "{{ leapp_async.ansible_job_id }}"
+  register: leapp_async_job_result
+  until: leapp_async_job_result.finished
+  retries: "{{ (leapp_async_timeout / leapp_async_retry_interval) | int }}"
+  delay: "{{ leapp_async_retry_interval }}"
 
 - name: Reboot to continue Leapp OS upgrade
   ansible.builtin.reboot:

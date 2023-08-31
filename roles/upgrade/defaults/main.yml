@@ -45,4 +45,6 @@ update_grub_to_grub_2: false
 
 post_reboot_delay: 120
 
+leapp_async_timeout: 14400
+leapp_async_retry_interval: 15
 ...
