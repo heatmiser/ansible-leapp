@@ -59,7 +59,7 @@
   args:
     executable: /bin/bash
   async: 43200
-  poll: 60
+  poll: 30
   # failed_when: false
 
 - name: Reboot to continue OS upgrade

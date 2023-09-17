@@ -33,7 +33,7 @@
   args:
     executable: /bin/bash
   async: 43200
-  poll: 60
+  poll: 30
 
 - name: Reboot to continue Leapp OS upgrade
   ansible.builtin.reboot:
