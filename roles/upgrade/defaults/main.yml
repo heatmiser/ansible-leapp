@@ -45,5 +45,5 @@ update_grub_to_grub_2: false
 
 post_reboot_delay: 120
 
-os_path: $PATH
+# os_path: $PATH
 ...
