@@ -8,6 +8,10 @@ leapp_upgrade_type: satellite
 
 leapp_upgrade_opts: "{{ '--no-rhsm' if leapp_upgrade_type == 'rhui' else '' }}"
 
+# For Satellite scenarios, after upgrade completes,
+# unset releasever prior to registering to post leapp activation key
+leapp_upgrade_unset_release: true
+
 leapp_repos_enabled: []
 # leapp_repos_enabled:
 #   - satellite-client-6-for-rhel-{{ ansible_distribution_major_version | int + 1 }}-x86_64-rpms
