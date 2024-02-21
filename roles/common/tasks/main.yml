@@ -35,7 +35,7 @@
     cmd: >-
       export PATH={{ os_path }};
       set -o pipefail;
-      yum repolist
+      yum repolist all
   args:
     executable: /bin/bash
   register: leapp_yum_repolist
