@@ -77,7 +77,7 @@
   ansible.builtin.set_fact:
     analysis_repos_el7: "rhel-7-server-rhui-extras-rpms"
   when:
-    - leapp_yum_repolist.stdout | regex_search('rhui.*enabled')
+    - leapp_yum_repolist.stdout | regex_search('rhui.*enabled', multiline=True)
     - ansible_distribution_major_version|int == 7
 
 - name: Set analysis package list facts for preupgrade analysis for RHUI Marketplace Leapp upgrades on AWS
