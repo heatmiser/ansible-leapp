@@ -29,4 +29,79 @@
     mode: "0644"
   notify:
     - Archive log file
+
+- name: Register output of 'yum repolist'
+  ansible.builtin.shell:
+    cmd: >-
+      export PATH={{ os_path }};
+      set -o pipefail;
+      yum repolist
+  args:
+    executable: /bin/bash
+  register: leapp_yum_repolist
+  changed_when: false
+  failed_when:
+    - leapp_yum_repolist.rc != 0
+    - leapp_yum_repolist.stderr != ""
+
+- name: Determine system repos type from subscription-manager
+  ansible.builtin.shell:
+    cmd: >-
+      export PATH={{ os_path }};
+      set -o pipefail;
+      subscription-manager repos
+  args:
+    executable: /bin/bash
+  register: leapp_subscription_manager_repos
+  changed_when: false
+  failed_when:
+    - leapp_subscription_manager_repos.rc != 0
+    - leapp_subscription_manager_repos.stderr != ""
+
+- name: Determine subscription-manager facts
+  ansible.builtin.shell:
+    cmd: >-
+      export PATH={{ os_path }};
+      set -o pipefail;
+      subscription-manager facts
+  args:
+    executable: /bin/bash
+  register: leapp_subscription_manager_facts
+  changed_when: false
+  failed_when:
+    - leapp_subscription_manager_facts.rc != 0
+    - leapp_subscription_manager_facts.stderr != ""
+
+# Set facts for hyperscaler instances utilzing RHUI
+- name: Set fact for RHUI RHEL extras repo name when utilizing RHUI
+  ansible.builtin.set_fact:
+    analysis_repos_el7: "rhel-7-server-rhui-extras-rpms"
+  when:
+    - leapp_yum_repolist.stdout | regex_search('rhui.*enabled' | string )
+    - ansible_distribution_major_version|int == 7
+
+- name: Set analysis package list facts for preupgrade analysis for RHUI Marketplace Leapp upgrades on AWS
+  ansible.builtin.set_fact:
+    leapp_upgrade_type: rhui
+    analysis_packages_el7:
+      - leapp-rhui-aws
+      - leapp-upgrade
+    analysis_packages_el8:
+      - leapp-rhui-aws
+      - leapp-upgrade
+  when:
+    - "'rhui' in leapp_yum_repolist.stdout"
+    - ansible_product_uuid|regex_search('^ec2') or ansible_product_uuid|regex_search('^EC2')
+
+# Set facts for instance utilzing Satellite
+- name: Set analysis_convert2rhel_repo_type to 'satellite'
+  ansible.builtin.set_fact:
+    leapp_upgrade_type: satellite
+    analysis_packages_el7:
+      - leapp-upgrade
+    analysis_packages_el8:
+      - leapp-upgrade
+    leapp_repos_enabled:
+      - satellite-client-6-for-rhel-{{ ansible_distribution_major_version | int + 1 }}-x86_64-rpms
+  when: leapp_subscription_manager_repos.stdout | regex_search('\/pulp\/content\/' + rhsm_org | string + '\/' + satellite_activation_key_pre_leapp | string )
 ...
