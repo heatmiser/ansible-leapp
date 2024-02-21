@@ -3,4 +3,5 @@
 log_directory: /var/log/ripu
 log_file: "{{ log_directory }}/ripu.log"
 rhsm_org: ""
+satellite_activation_key_pre_leapp: ""
 ...
